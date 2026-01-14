@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YoPrint Operations Dashboard</title>
+    <link href="https://integrations.missiveapp.com/missive.css" rel="stylesheet">
+    <script src="https://integrations.missiveapp.com/missive.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -379,24 +381,58 @@
     
     <script>
         const YOPRINT_URL = 'https://app.yoprint.com/api/external';
-        let API_KEY = localStorage.getItem('yoprint_api_key');
+        let API_KEY = null;
         let currentTab = 'quotes';
         let allData = {};
-        
-        if (!API_KEY) {
-            API_KEY = prompt('Enter your YoPrint API key:\n\n(Find it in YoPrint Settings)');
+
+        async function init() {
+            API_KEY = await Missive.storeGet('yoprint_api_key');
+
+            if (!API_KEY) {
+                await promptForApiKey();
+            }
+
             if (API_KEY) {
-                localStorage.setItem('yoprint_api_key', API_KEY);
-            } else {
-                document.getElementById('content-container').innerHTML = 
-                    '<div class="error-message">API key required. Refresh to enter key.</div>';
+                loadData();
             }
         }
-        
-        function resetApiKey() {
-            if (confirm('Remove saved API key and reload?')) {
-                localStorage.removeItem('yoprint_api_key');
-                location.reload();
+
+        async function promptForApiKey() {
+            const result = await Missive.openForm({
+                title: 'YoPrint API Key',
+                inputs: [
+                    {
+                        type: 'text',
+                        name: 'api_key',
+                        label: 'Enter your YoPrint API key',
+                        placeholder: 'Find it in YoPrint Settings'
+                    }
+                ]
+            });
+
+            if (result && result.api_key) {
+                API_KEY = result.api_key;
+                await Missive.storeSet('yoprint_api_key', API_KEY);
+            } else {
+                document.getElementById('content-container').innerHTML =
+                    '<div class="error-message">API key required. Click Settings to enter key.</div>';
+            }
+        }
+
+        async function resetApiKey() {
+            const result = await Missive.openForm({
+                title: 'Reset API Key',
+                message: 'Remove saved API key and reload?',
+                inputs: []
+            });
+
+            if (result !== null) {
+                await Missive.storeSet('yoprint_api_key', null);
+                API_KEY = null;
+                await promptForApiKey();
+                if (API_KEY) {
+                    loadData();
+                }
             }
         }
         
@@ -551,13 +587,12 @@
                 loadData();
             });
         });
-        
+
         document.getElementById('search').addEventListener('input', renderData);
         document.getElementById('status-filter').addEventListener('change', renderData);
-        
-        if (API_KEY) {
-            loadData();
-        }
+
+        // Initialize with Missive storage
+        init();
     </script>
 </body>
 </html>
