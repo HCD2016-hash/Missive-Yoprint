@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YoPrint Operations Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg: #fafbfc;
+            --card-bg: #ffffff;
+            --border: #e4e7eb;
+            --text-primary: #0f1419;
+            --text-secondary: #5f6c7b;
+            --accent-quote: #8b5cf6;
+            --accent-order: #3b82f6;
+            --accent-ship: #10b981;
+            --accent-po: #f59e0b;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .header {
+            background: var(--card-bg);
+            padding: 32px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+            border-bottom: 4px solid var(--accent-order);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        
+        .header .subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .settings-btn {
+            float: right;
+            background: transparent;
+            border: 1.5px solid var(--border);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .settings-btn:hover {
+            border-color: var(--accent-order);
+            color: var(--accent-order);
+            transform: translateY(-1px);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            background: var(--card-bg);
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 14px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
+            position: relative;
+        }
+        
+        .tab:hover {
+            background: var(--bg);
+        }
+        
+        .tab.active {
+            background: var(--text-primary);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid var(--text-primary);
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            color: var(--text-primary);
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent-order);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .search-box input::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .filter-select {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            color: var(--text-primary);
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--accent-order);
+        }
+        
+        .refresh-btn {
+            background: var(--accent-order);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .refresh-btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+        
+        .item {
+            background: var(--card-bg);
+            padding: 20px 24px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            border-left: 4px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .item:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .item.quote {
+            border-left-color: var(--accent-quote);
+        }
+        
+        .item.order {
+            border-left-color: var(--accent-order);
+        }
+        
+        .item.shipment {
+            border-left-color: var(--accent-ship);
+        }
+        
+        .item.po {
+            border-left-color: var(--accent-po);
+        }
+        
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .item-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .item-number {
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            color: var(--text-secondary);
+            background: var(--bg);
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+        
+        .item-meta {
+            display: flex;
+            gap: 24px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-badge.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-badge.approved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-badge.shipped {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .status-badge.completed {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+        
+        .loading-container {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .error-message {
+            background: #fee2e2;
+            border: 1.5px solid #fca5a5;
+            color: #991b1b;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .item {
+            animation: fadeIn 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="settings-btn" onclick="resetApiKey()">⚙ Settings</button>
+            <h1>YoPrint Operations</h1>
+            <div class="subtitle">Hub City Design • Order Management Dashboard</div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" data-tab="quotes">📋 Quotes</button>
+            <button class="tab" data-tab="orders">🛒 Sales Orders</button>
+            <button class="tab" data-tab="shipments">📦 Shipments</button>
+            <button class="tab" data-tab="pos">📝 Purchase Orders</button>
+        </div>
+        
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="search" placeholder="Search by customer, order number, or description...">
+            </div>
+            <select class="filter-select" id="status-filter">
+                <option value="all">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="in-progress">In Progress</option>
+                <option value="completed">Completed</option>
+            </select>
+            <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+        </div>
+        
+        <div id="error-container"></div>
+        <div id="content-container">
+            <div class="loading-container">Loading data...</div>
+        </div>
+    </div>
+    
+    <script>
+        const YOPRINT_URL = 'https://app.yoprint.com/api/external';
+        let API_KEY = localStorage.getItem('yoprint_api_key');
+        let currentTab = 'quotes';
+        let allData = {};
+        
+        if (!API_KEY) {
+            API_KEY = prompt('Enter your YoPrint API key:\n\n(Find it in YoPrint Settings)');
+            if (API_KEY) {
+                localStorage.setItem('yoprint_api_key', API_KEY);
+            } else {
+                document.getElementById('content-container').innerHTML = 
+                    '<div class="error-message">API key required. Refresh to enter key.</div>';
+            }
+        }
+        
+        function resetApiKey() {
+            if (confirm('Remove saved API key and reload?')) {
+                localStorage.removeItem('yoprint_api_key');
+                location.reload();
+            }
+        }
+        
+        async function loadData() {
+            if (!API_KEY) return;
+            
+            const container = document.getElementById('content-container');
+            const errorContainer = document.getElementById('error-container');
+            
+            container.innerHTML = '<div class="loading-container">Loading ' + currentTab + '...</div>';
+            errorContainer.innerHTML = '';
+            
+            try {
+                let endpoint = '';
+                switch(currentTab) {
+                    case 'quotes':
+                        endpoint = '/orders?type=quote&limit=50';
+                        break;
+                    case 'orders':
+                        endpoint = '/orders?type=sales&limit=50';
+                        break;
+                    case 'shipments':
+                        endpoint = '/shipments?limit=50';
+                        break;
+                    case 'pos':
+                        endpoint = '/purchase-orders?limit=50';
+                        break;
+                }
+                
+                const response = await fetch(`${YOPRINT_URL}${endpoint}`, {
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        throw new Error('Invalid API key. Click Settings to enter a new one.');
+                    }
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                allData[currentTab] = data.data || [];
+                renderData();
+            } catch (error) {
+                console.error('Error:', error);
+                errorContainer.innerHTML = `
+                    <div class="error-message">
+                        <strong>Error loading data:</strong> ${error.message}
+                    </div>
+                `;
+                container.innerHTML = '';
+            }
+        }
+        
+        function renderData() {
+            const container = document.getElementById('content-container');
+            const searchTerm = document.getElementById('search').value.toLowerCase();
+            const statusFilter = document.getElementById('status-filter').value;
+            
+            const data = allData[currentTab] || [];
+            
+            let filtered = data.filter(item => {
+                const matchesSearch = !searchTerm || 
+                    (item.customer_name && item.customer_name.toLowerCase().includes(searchTerm)) ||
+                    (item.order_number && item.order_number.toLowerCase().includes(searchTerm)) ||
+                    (item.description && item.description.toLowerCase().includes(searchTerm));
+                
+                const matchesStatus = statusFilter === 'all' || 
+                    (item.status && item.status.toLowerCase() === statusFilter);
+                
+                return matchesSearch && matchesStatus;
+            });
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="no-results">No items found</div>';
+                return;
+            }
+            
+            container.innerHTML = filtered.map((item, index) => {
+                const itemClass = currentTab === 'quotes' ? 'quote' : 
+                                 currentTab === 'orders' ? 'order' : 
+                                 currentTab === 'shipments' ? 'shipment' : 'po';
+                
+                return `
+                    <div class="item ${itemClass}" onclick="openItem('${item.id}')" style="animation-delay: ${index * 0.05}s">
+                        <div class="item-header">
+                            <div class="item-title">${escapeHtml(item.customer_name || 'Unknown Customer')}</div>
+                            <div class="item-number">#${escapeHtml(item.order_number || item.id)}</div>
+                        </div>
+                        <div class="item-meta">
+                            <div class="meta-item">
+                                <span class="status-badge ${getStatusClass(item.status)}">${escapeHtml(item.status || 'Unknown')}</span>
+                            </div>
+                            ${item.total ? `<div class="meta-item">💰 $${parseFloat(item.total).toFixed(2)}</div>` : ''}
+                            ${item.created_at ? `<div class="meta-item">📅 ${formatDate(item.created_at)}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function getStatusClass(status) {
+            if (!status) return 'pending';
+            const s = status.toLowerCase();
+            if (s.includes('pending') || s.includes('draft')) return 'pending';
+            if (s.includes('approved') || s.includes('confirmed')) return 'approved';
+            if (s.includes('ship')) return 'shipped';
+            if (s.includes('complete') || s.includes('delivered')) return 'completed';
+            return 'pending';
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function openItem(id) {
+            let url = '';
+            switch(currentTab) {
+                case 'quotes':
+                case 'orders':
+                    url = `https://app.yoprint.com/orders/${id}`;
+                    break;
+                case 'shipments':
+                    url = `https://app.yoprint.com/shipments/${id}`;
+                    break;
+                case 'pos':
+                    url = `https://app.yoprint.com/purchase-orders/${id}`;
+                    break;
+            }
+            window.open(url, '_blank');
+        }
+        
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentTab = tab.dataset.tab;
+                loadData();
+            });
+        });
+        
+        document.getElementById('search').addEventListener('input', renderData);
+        document.getElementById('status-filter').addEventListener('change', renderData);
+        
+        if (API_KEY) {
+            loadData();
+        }
+    </script>
+</body>
+</html>
